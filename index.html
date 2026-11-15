@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Справочник Gen AI-аналитика</title>
+  <meta name="description" content="Настольный справочник по технологиям и практикам Gen AI с позиции аналитика: RAG, агенты, промпты, оценка качества, guardrails, наблюдаемость, стоимость.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <button class="toc-toggle" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="side-overlay"></div>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">AI</span>
+      <span class="brand-text">Справочник<small>Gen AI-аналитика</small></span>
+    </div>
+    <div class="side-search">
+      <input type="search" id="side-search-input" placeholder="Поиск по разделам…" autocomplete="off">
+    </div>
+    <nav class="side-nav"><!-- строится скриптом --></nav>
+  </aside>
+
+  <main class="main">
+    <div class="page">
+      <article class="cover">
+
+        <h1>Gen AI для аналитика</h1>
+        <p class="lede">Настольная шпаргалка по технологиям и практикам генеративного ИИ
+          с позиции системного аналитика: что есть что, как проектировать правильно
+          и чем проверять результат. Каждый раздел — определение, устройство,
+          методика «как делать», пример, антипаттерны и термины.</p>
+
+        <div class="toc-box">
+          <span class="label">Содержание страницы</span>
+          <ul><!-- строится скриптом из h2 --></ul>
+        </div>
+
+        <h2>Разделы</h2>
+
+        <div class="section-map">
+          <a href="rag.html"><b>RAG</b><small>Конвейер усиленной генерации: от запроса до ответа с цитатами. Chunking, embeddings, векторные БД, гибридный поиск, reranking.</small></a>
+          <a href="agents.html"><b>Агенты и оркестрация</b><small>Чем агент отличается от пайплайна. Tool calling, MCP, multi-agent, маршрутизация, память и контекст.</small></a>
+          <a href="prompts.html"><b>Промпты и контекст</b><small>Системный промпт как спецификация. Управление контекстным окном, structured outputs, версионирование.</small></a>
+          <a href="evaluation.html"><b>Оценка качества</b><small>Golden dataset, LLM-as-a-judge, метрики RAG и агентов, A/B-тесты, замеры «до/после».</small></a>
+          <a href="guardrails.html"><b>Guardrails и безопасность</b><small>Галлюцинации и их сдерживание, валидация выводов, prompt injection, OWASP LLM Top 10.</small></a>
+          <a href="observability.html"><b>Наблюдаемость</b><small>Трейсинг запусков, логи, метрики мониторинга качества в эксплуатации.</small></a>
+          <a href="cost.html"><b>Стоимость и латентность</b><small>Юнит-экономика запроса: токены, цены, латентность, выбор модели, кэширование.</small></a>
+          <a href="artifacts.html"><b>Артефакты аналитика</b><small>Спецификация AI-фичи, промпты как требования, BRD/HLD/ADR, C4/UML, НФТ для LLM-систем.</small></a>
+          <a href="glossary.html"><b>Глоссарий</b><small>Термины из вакансий и документации: краткие определения и отсылки к разделам.</small></a>
+        </div>
+
+        <h2>Принципы материала</h2>
+        <ul>
+          <li>Только проверяемые факты: определения и метрики сверяются с первоисточниками
+            (официальная документация фреймворков, спецификации, OWASP); ссылки — внизу каждой страницы.</li>
+          <li>Позиция аналитика, а не ML-инженера: как ставить задачу, описывать решение,
+            определять метрики и принимать результат.</li>
+          <li>Русский текст, английские термины — как в вакансиях и документации,
+            чипами вида <span class="term">context window</span>.</li>
+          <li>Без маркетинга: никаких обещаний «революции», только устройство, методика и границы применимости.</li>
+        </ul>
+
+        <h2>Откуда взялась структура</h2>
+        <p>Состав разделов собран из анализа требований десяти вакансий уровня
+          «системный / Gen AI аналитик» на русскоязычных и международных площадках
+          (hh.ru, Хабр Карьера, rabota.sber.ru, getmatch, LinkedIn, Indeed) и сведён
+          к частотным блокам требований: RAG-конвейеры, агентная оркестрация,
+          промпт-инжиниринг, оценка качества, guardrails, наблюдаемость,
+          стоимость, инженерные артефакты. Глоссарий показывает, в каких блоках
+          требований встречается каждый термин.</p>
+
+        <div class="note">
+          <span class="label">Заметка</span>
+          <p>Материал — отправная точка и рабочая память, а не замена первоисточникам.
+            При расхождении ссылайтесь на документацию инструмента, который используете.
+            Проект личный и не связан с работодателем.</p>
+        </div>
+
+
+      </article>
+    </div>
+  </main>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<!-- ============================================================
+  ШАБЛОН страницы справочника. Копируй этот файл под нужное имя
+  (например, rag.html) и заполняй <article>. Остальное не меняй.
+
+  Правила:
+  - Кодировка UTF-8, язык ru. Термины-оригиналы — в <span class="term">.
+  - Никаких внешних ресурсов (CDN, шрифты, картинки, <img>).
+  - Компоненты: .flow (схема), .do/.dont/.note (каллауты),
+    .checklist, ol.steps, table, pre>code, .metric, .freq.
+  - В конце <article> — блок «Источники» с реальными ссылками.
+============================================================ -->
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ШАБЛОН — Справочник Gen AI-аналитика</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <button class="toc-toggle" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="side-overlay"></div>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">AI</span>
+      <span class="brand-text">Справочник<small>Gen AI-аналитика</small></span>
+    </div>
+    <div class="side-search">
+      <input type="search" id="side-search-input" placeholder="Поиск по разделам…" autocomplete="off">
+    </div>
+    <nav class="side-nav"><!-- строится скриптом --></nav>
+  </aside>
+
+  <main class="main">
+    <div class="page">
+      <article>
+
+        <h1>Заголовок раздела</h1>
+        <p class="lede">Определение в 2–3 предложения: что это и какую задачу закрывает.
+          Здесь же — первый термин: <span class="term">Retrieval-Augmented Generation</span>.</p>
+
+        <div class="toc-box">
+          <span class="label">Содержание страницы</span>
+          <ul><!-- строится скриптом из h2 --></ul>
+        </div>
+
+        <h2>Что это и зачем аналитику</h2>
+        <p>Текст. Английские термины при первом упоминании — чипом:
+          <span class="term">hybrid search</span>, дальше можно просто словом.</p>
+
+        <h2>Как устроено</h2>
+        <p>Схема конвейера — блоком .flow:</p>
+
+        <div class="flow">
+          <div class="flow-step"><b>Запрос</b><small>вопрос пользователя</small></div>
+          <span class="flow-sep">→</span>
+          <div class="flow-step"><b>Retriever</b><small>поиск по базе знаний</small></div>
+          <span class="flow-sep">→</span>
+          <div class="flow-step"><b>LLM</b><small>генерация ответа по контексту</small></div>
+          <span class="flow-sep">→</span>
+          <div class="flow-step"><b>Ответ</b><small>со ссылками на источники</small></div>
+        </div>
+
+        <h2>Как делать правильно</h2>
+
+        <div class="do">
+          <span class="label">Как правильно</span>
+          <ul>
+            <li>конкретные практические указания;</li>
+            <li>проверяемые формулировки без воды.</li>
+          </ul>
+        </div>
+
+        <div class="dont">
+          <span class="label">Антипаттерн</span>
+          <p>Чего не делать и почему.</p>
+        </div>
+
+        <div class="note">
+          <span class="label">Заметка</span>
+          <p>Уточнение, граничный случай, подводный камень.</p>
+        </div>
+
+        <ol class="steps">
+          <li>Первый шаг методики.</li>
+          <li>Второй шаг.</li>
+        </ol>
+
+        <ul class="checklist">
+          <li>Пункт чек-листа для проверки результата.</li>
+        </ul>
+
+        <h2>Пример</h2>
+        <p>Мини-кейс: постановка → решение → результат. Код и структуры — блоками:</p>
+
+        <pre><code>GET /api/v1/search?q=ошибка+интеграции&amp;top_k=5</code></pre>
+
+        <p>Метрики — карточками .metric:</p>
+
+        <div class="metric">
+          <b>Faithfulness</b>
+          <span class="formula">доля утверждений ответа, подтверждённых найденным контекстом</span>
+          Диапазон 0–1; выше — лучше. Проверяет «не выдумал ли модель».
+        </div>
+
+        <h2>Термины раздела</h2>
+        <table>
+          <thead>
+            <tr><th>Термин</th><th>Перевод / суть</th><th>Однострочное определение</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="term">reranking</span></td>
+              <td>переранжирование</td>
+              <td>Второй, более точный этап сортировки найденных фрагментов.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="sources">
+          <span class="label">Источники</span>
+          <ul>
+            <li><a href="https://example.com/docs" target="_blank" rel="noopener">Название документа — example.com</a></li>
+          </ul>
+          <div class="page-foot">Проверено по первоисточникам · обновлено 2026-11-15</div>
+        </div>
+
+      </article>
+    </div>
+  </main>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

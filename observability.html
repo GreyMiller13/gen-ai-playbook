@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Наблюдаемость — Справочник Gen AI-аналитика</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <button class="toc-toggle" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="side-overlay"></div>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">AI</span>
+      <span class="brand-text">Справочник<small>Gen AI-аналитика</small></span>
+    </div>
+    <div class="side-search">
+      <input type="search" id="side-search-input" placeholder="Поиск по разделам…" autocomplete="off">
+    </div>
+    <nav class="side-nav"><!-- строится скриптом --></nav>
+  </aside>
+
+  <main class="main">
+    <div class="page">
+      <article>
+
+        <h1>Наблюдаемость LLM-решений</h1>
+        <p class="lede"><span class="term">observability</span> — возможность по телеметрии отвечать на вопросы
+          о поведении системы, которые не были известны заранее. Для LLM-приложений это прежде всего
+          <span class="term">tracing</span>: дерево вызовов <span class="term">trace</span> /
+          <span class="term">span</span>, где каждый шаг агента — модель, retrieval, инструмент — виден с аргументами,
+          токенами, латентностью и стоимостью.</p>
+
+        <div class="toc-box">
+          <span class="label">Содержание страницы</span>
+          <ul><!-- строится скриптом из h2 --></ul>
+        </div>
+
+        <h2>Что это и зачем аналитику</h2>
+        <p>Классического APM (логи, метрики HTTP, алерты на 5xx) для LLM-приложения мало по трём причинам:</p>
+        <ul>
+          <li><b>недетерминизм</b>: одинаковый вход даёт разные выходы; ответ может быть «успешным» по HTTP
+            и бесполезным или вредным по смыслу — деградация не выглядит ошибкой;</li>
+          <li><b>качество — метрика</b>: faithfulness, полнота, доля эскалаций не выводятся из кодов ответа,
+            их надо собирать отдельно (телеметрия + обратная связь + выборочные проверки);</li>
+          <li><b>дрейф</b>: поведение меняется без вашего релиза — провайдер обновляет модель, меняется
+            распределение пользовательских запросов, «тихие» регрессии накапливаются.</li>
+        </ul>
+        <p>Роль аналитика: определить, что считается телеметрией (какие события, спаны, метрики), что логируется
+          с контентом, а что без, какие пороги триггерят алерты и как телеметрия замыкается в цикл улучшений
+          (трейсы → датасеты → evals → релиз промпта).</p>
+
+        <h2>Как устроено: трейсинг</h2>
+
+        <div class="flow">
+          <div class="flow-step"><b>Запрос</b><small>пользовательская сессия</small></div>
+          <span class="flow-sep">→</span>
+          <div class="flow-step"><b>Trace</b><small>root span агента</small></div>
+          <span class="flow-sep">→</span>
+          <div class="flow-step"><b>Spans</b><small>LLM / retrieval / tool</small></div>
+          <span class="flow-sep">→</span>
+          <div class="flow-step"><b>Экспорт</b><small>OpenTelemetry-коллектор</small></div>
+          <span class="flow-sep">→</span>
+          <div class="flow-step"><b>Платформа</b><small>трейсы, метрики, алерты</small></div>
+        </div>
+
+        <p>Модель данных: <b>trace</b> — полный путь одного запроса через приложение; <b>span</b> — одна операция
+          с именем, таймингами (start / end), атрибутами, событиями и статусом. Спаны вложены: span вызова LLM
+          лежит внутри span-а шага агента, а все вместе связаны общим trace_id. Сессия пользователя объединяет
+          несколько трейсов (диалог).</p>
+
+        <div class="do">
+          <span class="label">Что должно попадать в спан LLM-вызова</span>
+          <ul>
+            <li>имя модели и параметры вызова (temperature, max_tokens);</li>
+            <li>промпт и ответ — с учётом политики PII (см. ниже), опционально;</li>
+            <li>вызовы инструментов: имя, аргументы, результат, ошибки;</li>
+            <li>счётчики токенов: input / output (и кэшированные, если провайдер отдаёт);</li>
+            <li>латентность спана и статус (ok / error + тип ошибки);</li>
+            <li>стоимость — вычисленная по тарифам, если платформа не считает сама.</li>
+          </ul>
+        </div>
+
+        <p>Правило полноты: по одному трейсу должно быть возможно реконструировать, <em>почему</em> агент
+          ответил именно так — какой retrieval дал какие документы, какая модель с какими параметрами
+          генерировала, какой guardrail что отклонил.</p>
+
+        <h2>OpenTelemetry и GenAI-конвенции</h2>
+        <p><span class="term">OpenTelemetry</span> (OTel) — открытый стандарт телеметрии; трейсинг — один из его
+          сигналов. Специфичные для генеративного AI конвенции — <span class="term">GenAI semantic
+          conventions</span> — развиваются в отдельном репозитории проекта
+          (open-telemetry/semantic-conventions-genai) и на момент проверки находятся в статусе Development,
+          то есть имена атрибутов могут меняться.</p>
+        <p>Что определено в конвенциях: спаны LLM-вызова (client inference), эмбеддингов, выполнения
+          инструментов, retrieval, вызова агентов; события и метрики, включая токены. Ключевые атрибуты спана
+          LLM-вызова: <code>gen_ai.operation.name</code> и <code>gen_ai.provider.name</code> (обязательные),
+          <code>gen_ai.request.model</code>, <code>gen_ai.usage.input_tokens</code> /
+          <code>gen_ai.usage.output_tokens</code>, <code>gen_ai.response.finish_reasons</code>.</p>
+
+        <div class="note">
+          <span class="label">PII в конвенциях</span>
+          <p>Захват содержимого промптов и ответов (<code>gen_ai.input.messages</code>,
+            <code>gen_ai.output.messages</code>, системные инструкции, определения инструментов) — opt-in:
+            конвенции прямо предупреждают, что эти атрибуты «likely to contain sensitive information
+            including user/PII data». Предусмотрена альтернатива — ссылки <code>*_ref</code> на внешнее
+            защищённое хранилище контента.</p>
+        </div>
+
+        <p>Платформы трейсинга LLM (сравнение в одном абзаце): <b>LangSmith</b> от LangChain — коммерческая
+          платформа трейсинга, мониторинга и отладки LLM-приложений и агентов с оценками и управлением промптами,
+          есть облачный и self-hosted варианты развёртывания. <b>Langfuse</b> — open-source платформа для
+          инженерии AI-приложений: трейсинг с сессиями, оценки (LLM-as-judge, датасеты, эксперименты),
+          управление промптами, метрики стоимости и латентности; допускает self-hosting и облако.
+          <b>Arize Phoenix</b> — open-source платформа AI-observability и оценок от Arize, трейсинг построен
+          на OpenTelemetry, доступна как self-hosted, так и управляемая версия.</p>
+
+        <h2>Логирование</h2>
+        <p>Лог — дискретное событие, трейс — дерево вызовов с контекстом; для отладки агентов нужен трейс,
+          логи дополняют его. Какие события логировать обязательно:</p>
+        <ul class="checklist">
+          <li>решения guardrails: пропуск / отказ / эскалация и причина;</li>
+          <li>решения роутинга: какая модель выбрана и почему (если есть router);</li>
+          <li>вызовы инструментов: имя, аргументы (с маскированием), результат, ошибки, таймауты;</li>
+          <li>ошибки API провайдера и ретраи;</li>
+          <li>исходящий фидбек пользователя (thumbs, CSAT) с привязкой к trace_id.</li>
+        </ul>
+
+        <div class="dont">
+          <span class="label">Антипаттерн</span>
+          <p>Писать полные промпты и ответы в общий лог «по умолчанию». Телеметрия становится самым широким
+            каналом утечки PII: доступ к трейсам обычно шире, чем к самим данным. Контент — opt-in,
+            с маскированием и ограничением доступа.</p>
+        </div>
+
+        <h2>Онлайн-метрики качества</h2>
+        <p>Технические метрики (латентность, ошибки) необходимы, но недостаточны; качество измеряется
+          поведенческими метриками:</p>
+
+        <div class="metric">
+          <b>Доля эскалаций (escalation rate)</b>
+          <span class="formula">эскалации / все обращения за период</span>
+          Сколько диалогов передано человеку. Рост — деградация качества или пробелы в базе знаний;
+          ноль — подозрение, что агент не отдаёт сложное вообще.
+        </div>
+
+        <div class="metric">
+          <b>Thumbs up / down</b>
+          <span class="formula">негативные оценки / все оценки ответа</span>
+          Прямая обратная связь пользователя по конкретному ответу; привязывается к trace_id.
+          Учитывайте смещение выборки: чаще оценивают недовольные.
+        </div>
+
+        <div class="metric">
+          <b>CSAT</b>
+          <span class="formula">средняя оценка удовлетворённости по сессии (шкала, например 1–5)</span>
+          Классический опрос в конце сессии; грубее thumbs, но сопоставим с другими каналами поддержки.
+        </div>
+
+        <div class="metric">
+          <b>Доля отказов (refusal rate)</b>
+          <span class="formula">ответы-отказы / все ответы</span>
+          Отказ по guardrail — не всегда плохо; важно разбивать по причинам
+          (запрещённая тема / нет данных / подозрение на инъекцию).
+        </div>
+
+        <div class="metric">
+          <b>Повторные вопросы (re-ask rate)</b>
+          <span class="formula">сессии с повторной формулировкой того же вопроса / все сессии</span>
+          Прокси непонятных или неполных ответов: пользователь переспрашивает, не получив нужного.
+        </div>
+
+        <h2>Мониторинг деградаций и алертинг</h2>
+        <p>Источники «тихих» регрессий и что с ними делать:</p>
+        <ul>
+          <li><b>смена версий моделей провайдером</b>: закрепляйте снапшоты, где это возможно, и фиксируйте
+            фактическую версию модели в каждом трейсе (атрибут вида <code>gen_ai.response.model</code>);
+            алерт на смену значения — деградация без вашего релиза;</li>
+          <li><b>дрейф запросов</b>: после релиза продукта или сезонности меняются темы и длина промптов —
+            смотрите метрики по сегментам, а не только глобально;</li>
+          <li><b>тихие регрессии промпта</b>: перед релизом промпта — прогон по golden dataset;
+            после релиза — сравнение метрик качества с базовой линией.</li>
+        </ul>
+
+        <div class="do">
+          <span class="label">Трейсы как источник golden dataset</span>
+          <ul>
+            <li>неудачные трейсы (негативный фидбек, эскалации, провалы faithfulness) — кандидаты в
+              <span class="term">golden dataset</span>: новый кейс для регрессионного прогона;</li>
+            <li>перед добавлением — очистка PII и фиксация ожидаемого правильного ответа;</li>
+            <li>такой цикл (прод → датасет → evals → прод) — главный механизм, ради которого вообще
+              нужна телеметрия контента.</li>
+          </ul>
+        </div>
+
+        <p>Пороги алертов (от чего зависит здоровье системы):</p>
+        <ul class="checklist">
+          <li>p95 латентности ответа и p95 TTFT — отдельно;</li>
+          <li>error rate вызовов провайдера и доля ретраев;</li>
+          <li>доля эскалаций и негативного фидбека — рост к базовой линии, не абсолют;</li>
+          <li>стоимость на тикет / сессию / день — выход за бюджет;</li>
+          <li>смена значения атрибута версии модели в трейсах.</li>
+        </ul>
+
+        <h2>Пример: структура трейса агента</h2>
+        <p>Иллюстративная структура (имена атрибутов — по мотивам GenAI-конвенций OTel, статус Development;
+          формат упрощён):</p>
+
+        <pre><code>trace 7f3a...
+├─ session_id: "sess-1024", user_ref: "u-hash"        // без PII
+├─ span agent (root)
+│  ├─ span retrieval "vector_search"
+│  │   ├─ query: "ошибка интеграции 1c-toir", top_k: 5
+│  │   └─ doc_ids: [a1, b7, c2], latency_ms: 180
+│  ├─ span gen_ai.client.inference   // вызов LLM №1: выбор действия
+│  │   ├─ gen_ai.operation.name: "chat"
+│  │   ├─ gen_ai.request.model: "model-x"
+│  │   ├─ gen_ai.usage.input_tokens: 2150
+│  │   ├─ gen_ai.usage.output_tokens: 90
+│  │   └─ latency_ms: 640
+│  ├─ span execute_tool "ticket_lookup"
+│  │   ├─ args: {ticket: "TS-4112"}, status: ok
+│  │   └─ latency_ms: 220
+│  └─ span gen_ai.client.inference   // вызов LLM №2: финальный ответ
+│      ├─ gen_ai.usage.input_tokens: 3800
+│      ├─ gen_ai.usage.output_tokens: 410
+│      └─ gen_ai.response.finish_reasons: ["stop"]
+├─ span output_guard: citations_ok: true, latency_ms: 90
+└─ итоги: tokens_in 5950 / tokens_out 500,
+   cost_est: ..., latency_ms: 4200, feedback: thumbs_up</code></pre>
+
+        <p>Такой трейс отвечает на вопросы разбора инцидента: какие документы найдены, что выбрала модель,
+          что вернул инструмент, сколько стоил и длился каждый шаг. Числа иллюстративные.</p>
+
+        <h2>Антипаттерны</h2>
+
+        <div class="dont">
+          <span class="label">Антипаттерн</span>
+          <p>Только технические метрики: HTTP 200, средняя латентность, uptime. Всё зелёное — ответы при этом
+            бесполезны; качество должно быть метрикой первого класса.</p>
+        </div>
+
+        <div class="dont">
+          <span class="label">Антипаттерн</span>
+          <p>Средние без перцентилей. Средняя латентность прячет хвост из медленных сессий (ретраи, длинные
+            документы); SLA и алерты строятся на p95.</p>
+        </div>
+
+        <div class="dont">
+          <span class="label">Антипаттерн</span>
+          <p>Трейсы собираются «про запас», их никто не разбирает. Без процесса разбора инцидентов и переноса
+            кейсов в golden dataset телеметрия — только расход на хранение.</p>
+        </div>
+
+        <div class="dont">
+          <span class="label">Антипаттерн</span>
+          <p>Алерты на всё подряд либо ни на что. Первое приучает игнорировать (alert fatigue), второе
+            пропускает тихие регрессии на недели — особенно после смены модели провайдером.</p>
+        </div>
+
+        <div class="dont">
+          <span class="label">Антипаттерн</span>
+          <p>Контент логируется без политики: нет решения «что можно хранить, сколько, кто видит».
+            Утечка через телеметрию — штатный сценарий инцидента, а не экзотика.</p>
+        </div>
+
+        <h2>Термины раздела</h2>
+        <table>
+          <thead>
+            <tr><th>Термин</th><th>Перевод / суть</th><th>Однострочное определение</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="term">observability</span></td><td>наблюдаемость</td><td>Возможность отвечать по телеметрии на заранее неизвестные вопросы о системе.</td></tr>
+            <tr><td><span class="term">trace</span></td><td>трейс</td><td>Полный путь одного запроса через приложение; объединяет спаны общим trace_id.</td></tr>
+            <tr><td><span class="term">span</span></td><td>спан</td><td>Одна операция в трейсе: имя, тайминги, атрибуты, события, статус.</td></tr>
+            <tr><td><span class="term">OpenTelemetry</span></td><td>OTel</td><td>Открытый стандарт телеметрии (трейсы, метрики, логи) с SDK и протоколом экспорта.</td></tr>
+            <tr><td><span class="term">GenAI semantic conventions</span></td><td>конвенции GenAI</td><td>Набор имён атрибутов и спанов OTel для LLM-вызовов; статус Development.</td></tr>
+            <tr><td><span class="term">golden dataset</span></td><td>эталонный набор</td><td>Проверенные кейсы «вход → ожидаемый выход» для регрессионных прогонов.</td></tr>
+            <tr><td><span class="term">evals</span></td><td>оценки</td><td>Систематические проверки качества ответов: автоматические, ручные, LLM-as-judge.</td></tr>
+            <tr><td><span class="term">LLM-as-judge</span></td><td>модель-судья</td><td>Оценка ответов другой моделью по фиксированным критериям; требует калибровки.</td></tr>
+            <tr><td><span class="term">drift</span></td><td>дрейф</td><td>Постепенное изменение входных данных, запросов или поведения модели без релиза.</td></tr>
+            <tr><td><span class="term">escalation rate</span></td><td>доля эскалаций</td><td>Доля обращений, переданных из агента человеку.</td></tr>
+            <tr><td><span class="term">CSAT</span></td><td>удовлетворённость</td><td>Customer Satisfaction Score — оценка пользователем сессии по шкале.</td></tr>
+            <tr><td><span class="term">session</span></td><td>сессия</td><td>Группа трейсов одного диалога пользователя; единица для CSAT и re-ask.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="sources">
+          <span class="label">Источники</span>
+          <ul>
+            <li><a href="https://opentelemetry.io/docs/concepts/signals/traces/" target="_blank" rel="noopener">OpenTelemetry: трейсинг (концепции) — opentelemetry.io</a></li>
+            <li><a href="https://github.com/open-telemetry/semantic-conventions-genai" target="_blank" rel="noopener">GenAI semantic conventions (репозиторий) — github.com</a></li>
+            <li><a href="https://docs.langchain.com/langsmith" target="_blank" rel="noopener">LangSmith — docs.langchain.com</a></li>
+            <li><a href="https://langfuse.com/docs" target="_blank" rel="noopener">Langfuse — langfuse.com</a></li>
+            <li><a href="https://arize.com/docs/phoenix" target="_blank" rel="noopener">Arize Phoenix — arize.com</a></li>
+          </ul>
+          <div class="page-foot">Проверено по первоисточникам · обновлено 2026-11-15</div>
+        </div>
+
+      </article>
+    </div>
+  </main>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

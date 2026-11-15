@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Глоссарий — Справочник Gen AI-аналитика</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <button class="toc-toggle" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="side-overlay"></div>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">AI</span>
+      <span class="brand-text">Справочник<small>Gen AI-аналитика</small></span>
+    </div>
+    <div class="side-search">
+      <input type="search" id="side-search-input" placeholder="Поиск по разделам…" autocomplete="off">
+    </div>
+    <nav class="side-nav"><!-- строится скриптом --></nav>
+  </aside>
+
+  <main class="main">
+    <div class="page">
+      <article>
+
+        <h1>Термины Gen AI-аналитика</h1>
+        <p class="lede">Краткие определения терминов, которые встречаются в требованиях вакансий
+          и документации LLM-решений. Колонка «в вакансиях» — частота упоминания блока
+          в выборке из 10 вакансий «системный / Gen AI аналитик» (исследование 2026-11-15).</p>
+
+        <div class="toc-box">
+          <span class="label">Содержание страницы</span>
+          <ul><!-- строится скриптом из h2 --></ul>
+        </div>
+
+        <h2>RAG и поиск</h2>
+        <table>
+          <thead>
+            <tr><th style="width:16%">Термин</th><th>Определение</th><th style="width:7%">Раздел</th><th style="width:9%">В вакансиях</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="term">RAG</span></td><td>Retrieval-Augmented Generation — генерация ответа моделью по заранее найденным фрагментам источников, а не только на знаниях, зашитых в параметры модели.</td><td><a href="rag.html">01</a></td><td><span class="freq">7/10</span></td></tr>
+            <tr><td><span class="term">chunking</span></td><td>Разбиение документов на фрагменты для индексации и поиска; стратегия сильно влияет на качество ретрива.</td><td><a href="rag.html">01</a></td><td><span class="freq">в составе RAG</span></td></tr>
+            <tr><td><span class="term">embeddings</span></td><td>Векторные представления текста, близкие по смыслу тексты имеют близкие векторы.</td><td><a href="rag.html">01</a></td><td><span class="freq">в составе RAG</span></td></tr>
+            <tr><td><span class="term">vector database</span></td><td>Хранилище эмбеддингов с поиском ближайших соседей: pgvector, Qdrant, Milvus, Weaviate, FAISS.</td><td><a href="rag.html">01</a></td><td><span class="freq">5/10</span></td></tr>
+            <tr><td><span class="term">semantic search</span></td><td>Поиск по смыслу через эмбеддинги — в противоположность лексическому поиску по словам.</td><td><a href="rag.html">01</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">BM25</span></td><td>Классический алгоритм лексического релевантного ранжирования; база гибридного поиска.</td><td><a href="rag.html">01</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">hybrid search</span></td><td>Комбинация векторного и лексического поиска с объединением результатов.</td><td><a href="rag.html">01</a></td><td><span class="freq">в составе RAG</span></td></tr>
+            <tr><td><span class="term">reranking</span></td><td>Второй этап сортировки найденных фрагментов более точной моделью-ранжировщиком.</td><td><a href="rag.html">01</a></td><td><span class="freq">в составе RAG</span></td></tr>
+            <tr><td><span class="term">top_k</span></td><td>Количество фрагментов, передаваемых из ретривера в модель.</td><td><a href="rag.html">01</a></td><td><span class="freq">—</span></td></tr>
+          </tbody>
+        </table>
+
+        <h2>Агенты и оркестрация</h2>
+        <table>
+          <thead>
+            <tr><th style="width:16%">Термин</th><th>Определение</th><th style="width:7%">Раздел</th><th style="width:9%">В вакансиях</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="term">AI agent</span></td><td>LLM в цикле: сама решает, какие инструменты вызвать и когда закончить, в отличие от фиксированного пайплайна.</td><td><a href="agents.html">02</a></td><td><span class="freq">7/10</span></td></tr>
+            <tr><td><span class="term">tool calling</span></td><td>Механика вызова инструментов: модель выбирает функцию и аргументы по схеме, приложение исполняет вызов. Синоним: function calling.</td><td><a href="agents.html">02</a></td><td><span class="freq">5/10</span></td></tr>
+            <tr><td><span class="term">MCP</span></td><td>Model Context Protocol — открытый протокол подключения инструментов, ресурсов и промптов к LLM-приложениям.</td><td><a href="agents.html">02</a></td><td><span class="freq">3/10</span></td></tr>
+            <tr><td><span class="term">multi-agent system</span></td><td>Несколько агентов с распределением ролей; требует обоснования — сложности и стоимость растут.</td><td><a href="agents.html">02</a></td><td><span class="freq">4/10</span></td></tr>
+            <tr><td><span class="term">orchestration</span></td><td>Управление порядком и обменом между моделью, инструментами и памятью (LangGraph и аналоги).</td><td><a href="agents.html">02</a></td><td><span class="freq">4/10</span></td></tr>
+            <tr><td><span class="term">router / routing</span></td><td>Классификация запроса и направление его нужному обработчику: FAQ, RAG, агент, человек.</td><td><a href="agents.html">02</a></td><td><span class="freq">2/10</span></td></tr>
+            <tr><td><span class="term">agent memory</span></td><td>Короткосрочная (контекст диалога) и долгосрочная (внешнее хранилище) память агента.</td><td><a href="agents.html">02</a></td><td><span class="freq">3/10</span></td></tr>
+            <tr><td><span class="term">HITL</span></td><td>Human-in-the-loop — точки, где решение подтверждает человек: эскалации, опасные действия.</td><td><a href="agents.html">02</a></td><td><span class="freq">2/10</span></td></tr>
+            <tr><td><span class="term">escalation</span></td><td>Передача случая на следующую линию поддержки или человеку по заданному правилу.</td><td><a href="agents.html">02</a></td><td><span class="freq">2/10</span></td></tr>
+          </tbody>
+        </table>
+
+        <h2>Промпты и контекст</h2>
+        <table>
+          <thead>
+            <tr><th style="width:16%">Термин</th><th>Определение</th><th style="width:7%">Раздел</th><th style="width:9%">В вакансиях</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="term">prompt engineering</span></td><td>Проектирование промптов как спецификации поведения модели: структура, ограничения, примеры.</td><td><a href="prompts.html">03</a></td><td><span class="freq">6/10</span></td></tr>
+            <tr><td><span class="term">system prompt</span></td><td>Набор инструкций, задающих роль, границы и формат ответа; конфигурация, а не пожелание.</td><td><a href="prompts.html">03</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">context window</span></td><td>Максимальный объём текста (в токенах), который модель обрабатывает за один вызов.</td><td><a href="prompts.html">03</a></td><td><span class="freq">3/10</span></td></tr>
+            <tr><td><span class="term">context engineering</span></td><td>Управление тем, что попадает в контекст: отбор, суммаризация, компакция истории.</td><td><a href="prompts.html">03</a></td><td><span class="freq">2/10</span></td></tr>
+            <tr><td><span class="term">few-shot</span></td><td>Примеры «вопрос → правильный ответ» внутри промпта для калибровки формата и стиля.</td><td><a href="prompts.html">03</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">chain-of-thought</span></td><td>Пошаговые рассуждения перед ответом; помогает в многошаговых задачах, избыточно в простых.</td><td><a href="prompts.html">03</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">structured outputs</span></td><td>Строгий формат ответа (JSON Schema), валидируемый приложением; часто через tool calling.</td><td><a href="prompts.html">03</a></td><td><span class="freq">2/10</span></td></tr>
+            <tr><td><span class="term">token</span></td><td>Единица текста для модели (~часть слова); база расчёта стоимости и объёма контекста.</td><td><a href="cost.html">07</a></td><td><span class="freq">в составе cost</span></td></tr>
+          </tbody>
+        </table>
+
+        <h2>Оценка качества</h2>
+        <table>
+          <thead>
+            <tr><th style="width:16%">Термин</th><th>Определение</th><th style="width:7%">Раздел</th><th style="width:9%">В вакансиях</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="term">evals</span></td><td>Систематическая оценка качества LLM-решения на контрольных данных; критерий приёмки и регресса.</td><td><a href="evaluation.html">04</a></td><td><span class="freq">7/10</span></td></tr>
+            <tr><td><span class="term">golden dataset</span></td><td>Эталонный набор примеров «вопрос → правильный ответ / релевантные источники».</td><td><a href="evaluation.html">04</a></td><td><span class="freq">3/10</span></td></tr>
+            <tr><td><span class="term">LLM-as-a-judge</span></td><td>Оценка ответов другой моделью по рубрике; требует судью сильнее оцениваемой системы.</td><td><a href="evaluation.html">04</a></td><td><span class="freq">3/10</span></td></tr>
+            <tr><td><span class="term">faithfulness</span></td><td>Доля утверждений ответа, подтверждённых найденным контекстом; метрика «не выдумал».</td><td><a href="evaluation.html">04</a></td><td><span class="freq">2/10</span></td></tr>
+            <tr><td><span class="term">answer relevancy</span></td><td>Соответствие ответа заданному вопросу, а не просто связность текста.</td><td><a href="evaluation.html">04</a></td><td><span class="freq">2/10</span></td></tr>
+            <tr><td><span class="term">context precision</span></td><td>Насколько высоко релевантные фрагменты стоят в ранжированной выдаче ретривера (RAGAS).</td><td><a href="evaluation.html">04</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">context recall</span></td><td>Доля утверждений эталонного ответа, которые можно подтвердить найденным контекстом (RAGAS); требует эталона.</td><td><a href="evaluation.html">04</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">hit rate@k</span></td><td>Доля запросов, где релевантный фрагмент попал в первые k результатов.</td><td><a href="evaluation.html">04</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">MRR</span></td><td>Mean Reciprocal Rank — среднее обратного ранга первого релевантного результата.</td><td><a href="evaluation.html">04</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">task success rate</span></td><td>Доля сценариев агента, завершённых успешным результатом; метрика агентных систем.</td><td><a href="evaluation.html">04</a></td><td><span class="freq">2/10</span></td></tr>
+            <tr><td><span class="term">A/B testing</span></td><td>Сравнение двух версий на сопоставимых выборках; стандарт внесения изменений в проде.</td><td><a href="evaluation.html">04</a></td><td><span class="freq">2/10</span></td></tr>
+            <tr><td><span class="term">RAGAS</span></td><td>Открытый фреймворк метрик оценки RAG (faithfulness, relevancy, context precision/recall).</td><td><a href="evaluation.html">04</a></td><td><span class="freq">—</span></td></tr>
+          </tbody>
+        </table>
+
+        <h2>Безопасность и надёжность</h2>
+        <table>
+          <thead>
+            <tr><th style="width:16%">Термин</th><th>Определение</th><th style="width:7%">Раздел</th><th style="width:9%">В вакансиях</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="term">hallucination</span></td><td>Уверенный ответ, не подтверждённый данными: выдуманный факт, источник, инструкция.</td><td><a href="guardrails.html">05</a></td><td><span class="freq">5/10</span></td></tr>
+            <tr><td><span class="term">guardrails</span></td><td>Контроль входа и выхода вокруг модели: фильтры, валидация, правила отказа.</td><td><a href="guardrails.html">05</a></td><td><span class="freq">5/10</span></td></tr>
+            <tr><td><span class="term">prompt injection</span></td><td>Атака инструкциями в данных: пользовательский ввод или документ заставляет модель нарушить правила.</td><td><a href="guardrails.html">05</a></td><td><span class="freq">4/10</span></td></tr>
+            <tr><td><span class="term">grounding</span></td><td>Привязка ответа к проверенным источникам; синонимичный метрике термин — groundedness.</td><td><a href="guardrails.html">05</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">OWASP LLM Top 10</span></td><td>Список главных рисков безопасности LLM-приложений от OWASP (актуальная версия — на genai.owasp.org).</td><td><a href="guardrails.html">05</a></td><td><span class="freq">3/10</span></td></tr>
+            <tr><td><span class="term">MLSecOps</span></td><td>Практики безопасности ML-систем на всём жизненном цикле — от данных до мониторинга.</td><td><a href="guardrails.html">05</a></td><td><span class="freq">2/10</span></td></tr>
+          </tbody>
+        </table>
+
+        <h2>Эксплуатация и стоимость</h2>
+        <table>
+          <thead>
+            <tr><th style="width:16%">Термин</th><th>Определение</th><th style="width:7%">Раздел</th><th style="width:9%">В вакансиях</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="term">tracing</span></td><td>Запись полной цепочки выполнения запроса: промпты, вызовы инструментов, ответы, затраты.</td><td><a href="observability.html">06</a></td><td><span class="freq">4/10</span></td></tr>
+            <tr><td><span class="term">trace / span</span></td><td>Единицы трейсинга: span — один шаг (вызов модели, инструмента), trace — весь запрос.</td><td><a href="observability.html">06</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">OpenTelemetry</span></td><td>Открытый стандарт телеметрии; для GenAI есть семантические конвенции.</td><td><a href="observability.html">06</a></td><td><span class="freq">2/10</span></td></tr>
+            <tr><td><span class="term">LangSmith / Langfuse</span></td><td>Платформы трейсинга и оценки LLM-приложений; Langfuse — open source.</td><td><a href="observability.html">06</a></td><td><span class="freq">2/10</span></td></tr>
+            <tr><td><span class="term">drift</span></td><td>Незаметное изменение поведения: смены модели провайдером, изменение потока запросов.</td><td><a href="observability.html">06</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">TTFT</span></td><td>Time to first token — время до первого токена ответа; ключевой показатель отклика.</td><td><a href="cost.html">07</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">p95</span></td><td>95-й перцентиль распределения (латентности); характеризует хвост, а не среднее.</td><td><a href="cost.html">07</a></td><td><span class="freq">в составе NFR</span></td></tr>
+            <tr><td><span class="term">prompt caching</span></td><td>Кэширование повторяющейся части промпта провайдером; снижает стоимость и латентность.</td><td><a href="cost.html">07</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">deflection rate</span></td><td>Доля обращений, решённых без участия человека; бизнес-метрика поддержки.</td><td><a href="cost.html">07</a></td><td><span class="freq">—</span></td></tr>
+            <tr><td><span class="term">CSAT</span></td><td>Customer satisfaction — удовлетворённость пользователя ответом/решением.</td><td><a href="observability.html">06</a></td><td><span class="freq">—</span></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <span class="label">Заметка</span>
+          <p>Частоты посчитаны по десяти вакансиям уровня «системный / Gen AI аналитик»
+            (hh.ru, Хабр Карьера, rabota.sber.ru, getmatch, Remotive), исследование от 2026-11-15.
+            «—» означает, что в выборке термин не встретился, но он нужен для понимания смежных
+            требований и технических интервью.</p>
+        </div>
+
+        <div class="sources">
+          <span class="label">Источники</span>
+          <ul>
+            <li><a href="https://docs.ragas.io/" target="_blank" rel="noopener">RAGAS Documentation</a></li>
+            <li><a href="https://docs.langchain.com/" target="_blank" rel="noopener">LangChain Documentation</a></li>
+            <li><a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener">Model Context Protocol</a></li>
+            <li><a href="https://genai.owasp.org/" target="_blank" rel="noopener">OWASP GenAI Security</a></li>
+            <li><a href="https://opentelemetry.io/docs/" target="_blank" rel="noopener">OpenTelemetry Documentation</a></li>
+          </ul>
+          <div class="page-foot">Проверено по первоисточникам · обновлено 2026-11-15</div>
+        </div>
+
+      </article>
+    </div>
+  </main>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
